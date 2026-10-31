@@ -617,9 +617,15 @@
 
   // ---------------------------------------------------------------------------- Ruffle
 
+  // Az animációk sebessége (src/tweaks.as: hf.speed). A SWF 20 képkocka/mp-re készült: a képkockás
+  // animációkat a nagyobb képkockasebesség gyorsítja, az idő alapúakat a SWF (speed paraméter).
+  // ?speed=1: az eredeti tempó (kipróbáláshoz).
+  const ANIM_SPEED = Number(params.get('speed')) > 0 ? Math.min(4, Number(params.get('speed'))) : 2;
+
   window.RufflePlayer = window.RufflePlayer || {};
   window.RufflePlayer.config = {
     publicPath: 'vendor/ruffle/',
+    frameRate: 20 * ANIM_SPEED,
     autoplay: 'on',
     unmuteOverlay: 'hidden',
     splashScreen: false,
@@ -707,7 +713,7 @@
       url: 'swf/testclient.swf',
       base: base,
       // Az eredeti beágyazás paraméterei (honfoglalo.hu, 2013): questionxml, langid=hu, invitation=1.
-      parameters: Object.assign({ questionxml: 'questions.xml', langid: 'hu' },
+      parameters: Object.assign({ questionxml: 'questions.xml', langid: 'hu', speed: String(ANIM_SPEED) },
         params.has('debugclock') ? { debugclock: params.get('debugclock') } : {},
         params.has('debug') ? { debug: '1' } : {}, flashvars),
       allowScriptAccess: true,

@@ -22,6 +22,59 @@
         gcfg.TIMEOUT_TIP = Number(_level0.debugclock);
     }
 
+    // ------------------------------------------------------------------ gyorsabb animációk
+
+    // Az animációk hf.speed-szer gyorsabbak (js/hf.js: ANIM_SPEED, a speed paraméter). A képkockás
+    // animációkat a Ruffle gyorsítja (nagyobb képkockasebesség), az idő alapúakat ez: a tweenek
+    // (mx.transitions.Tween: az eltelt időt szorozzuk), a sorozat szünetei (CSqControl.AddDelay) és
+    // két rögzített várakozás. Az órák (válasz, tipp) és a robotok gondolkodási ideje nem változik.
+    hf.speed = Number(_level0.speed) > 0 ? Number(_level0.speed) : 1;
+    hf.ms = function (ms) {
+        return Math.round(ms / hf.speed);
+    };
+    if (hf.speed != 1) {
+        var TW = mx.transitions.Tween.prototype;
+        TW.nextFrame = function () {
+            if (this.useSeconds) {
+                this.__set__time((getTimer() - this._startTime) * hf.speed / 1000);
+            } else {
+                this.__set__time(this._time + 1);
+            }
+        };
+        TW.fixTime = function () {
+            if (this.useSeconds) {
+                this._startTime = getTimer() - this._time * 1000 / hf.speed;
+            }
+        };
+        var origAddDelay = CSqControl.prototype.AddDelay;
+        CSqControl.prototype.AddDelay = function (ms) {
+            return origAddDelay.call(this, hf.ms(ms));
+        };
+        // a kör eredménye utáni szünet (az eredetiben 2 mp)
+        game.hfOrigOnTurnAnimEnd = game.OnTurnAnimEnd;
+        game.OnTurnAnimEnd = function () {
+            game.hfOrigOnTurnAnimEnd();
+            if (game.state == 15) {
+                gtimer.resultdelay_time = getTimer() + hf.ms(2000);
+            }
+        };
+        // a torony bombázása (az eredetiben 2,5 mp)
+        game.hfOrigSqSetupBaseChange = game.SqSetupBaseChange;
+        game.SqSetupBaseChange = function () {
+            game.hfOrigSqSetupBaseChange();
+            for (var i = 0; i < gsqc.anims.length; i++) {
+                var o = gsqc.anims[i];
+                if (o.animid == 'BOMBING' && o.hfStart == undefined) {
+                    o.hfStart = o.Start;
+                    o.Start = function () {
+                        this.hfStart();
+                        this.max_play_time = getTimer() + hf.ms(2500);
+                    };
+                }
+            }
+        };
+    }
+
     // ------------------------------------------------------------------ térkép
 
     // A SWF-ben 13 ország térképe van (HU, FR, BG, BE, RS, RU, CZ, DE, UA, RO, SI, IT, SK), az eredeti
@@ -401,7 +454,7 @@
         if (n == 'map_territoryfill' || n == 'castle_appear') {
             fillTime = getTimer();
         }
-        if (n == 'playerbox_scorechange' && getTimer() - fillTime < 2500) {
+        if (n == 'playerbox_scorechange' && getTimer() - fillTime < hf.ms(2500)) {
             return null;
         }
         return n;
@@ -772,7 +825,8 @@
         }
         // A felfedés üteme pontos időpontokhoz kötve (a sorozat lépései nem késleltetik): az első
         // érték 0,4 mp múlva, utána 0,6 mp-enként (az eredetiben 0,5), a helyes válasz az utolsó után
-        // 1,6 mp-cel. Az értékek 0,3 mp alatt tűnnek elő, a sorozatot ez nem tartja fel.
+        // 1,6 mp-cel. Az értékek 0,3 mp alatt tűnnek elő, a sorozatot ez nem tartja fel. Mindez
+        // hf.speed-szer gyorsabban (hf.ms).
         var base = 0;
         var n = 0;
         var first = true;
@@ -797,7 +851,7 @@
                 first = false;
                 var o = protoDelay.call(gsqc, 0);
                 o.Start = function () {
-                    base = getTimer() + 400;
+                    base = getTimer() + hf.ms(400);
                     // a hangokat az oldal pontosan időzíti; a képek a képkockákhoz igazodnak
                     for (var i = 0; i < times.length; i++) {
                         gsound.playAt(times[i].snd, base + times[i].ms - getTimer());
@@ -815,12 +869,12 @@
         };
         gsqc.AddPlaySound = function (snd, loop) {
             if (snd == 'tip_appear') {
-                times.push({snd: snd, ms: n * 600});
+                times.push({snd: snd, ms: hf.ms(n * 600)});
                 n++;
                 return at(times[times.length - 1].ms, null);
             }
             if (snd == 'question_goodappear') {
-                times.push({snd: snd, ms: (n - 1) * 600 + 1600});
+                times.push({snd: snd, ms: hf.ms((n - 1) * 600 + 1600)});
                 return at(times[times.length - 1].ms, null);
             }
             return protoPlaySound.call(gsqc, snd, loop);
@@ -836,7 +890,7 @@
                 obj._alpha = 0;
                 obj._visible = true;
                 obj.onEnterFrame = function () {
-                    obj._alpha = Math.min(100, (getTimer() - t0) / 3);
+                    obj._alpha = Math.min(100, (getTimer() - t0) * hf.speed / 3);
                     if (obj._alpha >= 100) {
                         obj.onEnterFrame = undefined;
                     }

@@ -121,13 +121,17 @@ A `swf/testclient.swf`-et a `tools/patch_swf.py` állítja elő az eredetiből; 
 nem változtak. A kiegészítések ActionScript-forrásként a `src/` mappában vannak:
 
 - `src/core.as` – hang- és hálózati híd az oldal felé
-- `src/tweaks.as` – menü, robotjáték, hangok, tippkártyák
+- `src/tweaks.as` – menü, robotjáték, hangok, tippkártyák, gyorsabb animációk
 - `src/lobby.as` – a Flash-ablakok (szoba, visszajelzés, hangerő, eredmény, várakozó doboz)
 - `src/questions.as` – kérdésválasztás
 - `src/mp.as` – a többjátékos szinkron
 
+Az animációk kétszer olyan gyorsak, mint az eredetiben (`js/hf.js`: `ANIM_SPEED`): a képkockás
+animációkat a nagyobb képkockasebesség gyorsítja, az idő alapúakat a `src/tweaks.as`. Az órák (válasz,
+tipp) és a robotok gondolkodási ideje nem változott.
+
 Teszteléshez: `?debugclock=3` (rövid óra), `?slot=a` (külön munkamenet), `?debug`, `?map=FR`,
-`?long=1` (hosszú hadjárat), `?gamemode=1&cats=sport,termtud` (csak ezek a témakörök, csak erre a betöltésre), `?touchtext` (a telefonos beviteli mező asztali gépen is).
+`?long=1` (hosszú hadjárat), `?speed=1` (az eredeti animációs tempó), `?gamemode=1&cats=sport,termtud` (csak ezek a témakörök, csak erre a betöltésre), `?touchtext` (a telefonos beviteli mező asztali gépen is).
 
 ## Források
 
