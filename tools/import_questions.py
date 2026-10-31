@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Builds questions.xml (the file the game loads) from the question lists, or adds questions to it.
 
-    python3 tools/import_questions.py --rebuild          questions.xml újra a forrásokból:
-                                                         questions_2013.csv + questions_extra.csv
+    python3 tools/import_questions.py --rebuild          questions.xml újra a forrásból:
+                                                         questions_2026.csv (a régi listák, a
+                                                         questions_2013.csv és a questions_extra.csv
+                                                         már nem kerülnek be)
     python3 tools/import_questions.py kerdesek.csv       kérdések hozzáadása (a meglévőket kihagyja)
     ... --dry-run                                        csak ellenőriz, nem ír
 
@@ -34,7 +36,7 @@ from xml.sax.saxutils import escape
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 QFILE = os.path.join(ROOT, 'questions.xml')
-SOURCES = ['questions_2013.csv', 'questions_extra.csv']
+SOURCES = ['questions_2026.csv']
 ATTR = {'"': '&quot;', '\n': ' ', '\r': ' ', '\t': ' '}
 
 # kategórianév eleje -> a CAT attribútum értéke

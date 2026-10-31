@@ -4,7 +4,7 @@
 # nehézségenként nagyjából egyharmad-egyharmad.
 # Forrás: beküldött, szkennelt kérdések (2026, helyesírásilag és tartalmilag javítva), illetve
 # AI-val írt kérdések; mindkettő külön blokkban áll a nehézségi szinteken belül.
-# A questions.xml ebből és a questions_2013.csv-ből épül: python3 tools/import_questions.py --rebuild
+# Már nem kerül be a játékba: a questions.xml 2026 óta csak a questions_2026.csv-ből épül.
 # Feleletválasztós: kérdés;helyes válasz;rossz;rossz;rossz (a játék megkeveri a válaszokat)
 # Tippkérdés: kérdés;helyes szám;legkisebb;legnagyobb (a határok a robotok tippjeihez kellenek)
 # A "# " kezdetű kérdések ki vannak kapcsolva; a "# " törlésével (és a kategóriájuk, nehézségük alá

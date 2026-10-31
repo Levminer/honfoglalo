@@ -756,11 +756,15 @@ func (s *server) handleSend(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, err)
 		return
 	}
+	size := maxDecSize
+	if req.K > seenKey && req.K <= seenKey+maxPlayers {
+		size = maxSeenSize // a látott kérdések listája (lobby.go: seenKey)
+	}
 	s.withSeat(w, r, &req.tokenReq, func(l *lobby, seat int) error {
 		switch {
 		case !l.started:
 			return apiError{http.StatusConflict, "A játék még nem indult el."}
-		case req.K < 0 || req.K >= maxDecKey || len(req.D) == 0 || len(req.D) > maxDecSize || req.D[0] != '{':
+		case req.K < 0 || req.K >= maxDecKey || len(req.D) == 0 || len(req.D) > size || req.D[0] != '{':
 			return apiError{http.StatusBadRequest, "Hibás lépés."}
 		case l.seen[req.K]:
 			return nil // valaki már beküldte ezt a döntést: az első számít

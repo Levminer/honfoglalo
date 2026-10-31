@@ -1,5 +1,5 @@
 # A honfoglalo.hu próbajátékának eredeti kérdései (gettgquestions.php, 2013), kategóriákba sorolva.
-# A questions.xml ebből és a questions_extra.csv-ből épül: python3 tools/import_questions.py --rebuild
+# Már nem kerül be a játékba: a questions.xml 2026 óta csak a questions_2026.csv-ből épül.
 # Feleletválasztós: kérdés;helyes válasz;rossz;rossz;rossz   Tippkérdés: kérdés;szám;legkisebb;legnagyobb
 #
 # kategória: Földrajz

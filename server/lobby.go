@@ -18,6 +18,10 @@ const (
 	maxDecisions = 5000
 	maxDecKey    = 1 << 20
 	maxDecSize   = 1024
+	// A látott kérdések (src/mp.as: SEENKEY + hely, src/questions.as: Q.mySeen) kérdésenként egy bitet
+	// küldenek hexában: 3000-3000 kérdésnél ez ~1,6 KB. Csak ez a játékonként 3 döntés lehet nagyobb.
+	seenKey     = 1000000
+	maxSeenSize = 4096
 
 	// Az eseményfolyam pingje (a kliens 35 mp csend után újracsatlakozik), és egy írás leghosszabb ideje.
 	ssePing         = 15 * time.Second

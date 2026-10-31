@@ -137,6 +137,21 @@ func TestLobbyFlow(t *testing.T) {
 	if st, _ := post(t, ts.URL, "/api/check", map[string]string{"code": "ZZZZZ", "token": tokB}); st != 404 {
 		t.Fatalf("check unknown lobby: %d", st)
 	}
+	// a látott kérdések listája (seenKey + hely) nagyobb lehet, a többi döntés nem
+	big := map[string]string{"mc": strings.Repeat("f", 1500)}
+	if st, _ := post(t, ts.URL, "/api/send", map[string]any{"code": code, "token": tokA, "k": 8, "d": big}); st != 400 {
+		t.Fatalf("big decision: %d", st)
+	}
+	if st, _ := post(t, ts.URL, "/api/send", map[string]any{"code": code, "token": tokA, "k": seenKey + 1, "d": big}); st != 200 {
+		t.Fatalf("big seen list: %d", st)
+	}
+	if d := next(t, evA, "dec"); d["k"].(float64) != seenKey+1 {
+		t.Fatalf("seen list: %v", d)
+	}
+	huge := map[string]string{"mc": strings.Repeat("f", maxSeenSize)}
+	if st, _ := post(t, ts.URL, "/api/send", map[string]any{"code": code, "token": tokA, "k": seenKey + 2, "d": huge}); st != 400 {
+		t.Fatalf("huge seen list: %d", st)
+	}
 	// rossz token
 	if st, _ := post(t, ts.URL, "/api/send", map[string]any{"code": code, "token": "x", "k": 8, "d": map[string]int{}}); st != 403 {
 		t.Fatalf("bad token: %d", st)
