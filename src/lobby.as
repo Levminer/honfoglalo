@@ -778,7 +778,7 @@
             grad(b, 0, 0, w, h, Math.min(10, Math.round(h / 2)), hi ? 0xFFE98A : 0xF8D64E, hi ? 0xE3B232 : 0xC9961C, 0x6E4E0E);
         };
         draw(false);
-        ui.text(b, 0, Math.round((h - size * 1.5) / 2), w, Math.round(size * 1.7), label, size, 0x2D190E, true, 'center');
+        b.label = ui.text(b, 0, Math.round((h - size * 1.5) / 2), w, Math.round(size * 1.7), label, size, 0x2D190E, true, 'center');
         b.onRollOver = function () {
             draw(true);
         };
@@ -897,13 +897,32 @@
         ui.text(p2, X + 6, 56, RW - 12, 150, lines.join('\n\n'), 15, 0xEAD9B5, false, 'left', true);
 
         if (hf.mode == 'mp') {
-            // többjátékos módban: vissza a szobába (a főnök új játékot indíthat), vagy kilépés a főoldalra
-            yellowButton(b, X + 30, H2 - 64, RW - 60, 42, 'Vissza a váróba', 19, function () {
+            // többjátékos módban: vissza a szobába (a főnök új játékot indíthat), vagy kilépés a főoldalra.
+            // 5 mp után magától visszamegy a szobába (a gombon visszaszámlálás), ha addig nem kattintottál.
+            var no = panelNo;
+            var left = 5;
+            var again = function () {
+                no = -1;                            // a visszaszámlálás leáll
                 hf.net.call('again');
-            });
+            };
+            var back = yellowButton(b, X + 30, H2 - 64, RW - 60, 42, 'Vissza a váróba (' + left + ')', 19, again);
             yellowButton(b, 12, H2 - 44, 112, 28, 'Kilépés', 15, function () {
+                no = -1;
                 hf.net.call('exit');
             });
+            var tick = function () {
+                if (no != panelNo) {
+                    return;
+                }
+                left--;
+                if (left <= 0) {
+                    again();
+                    return;
+                }
+                back.label.text = 'Vissza a váróba (' + left + ')';
+                hf.later(1000, tick);
+            };
+            hf.later(1000, tick);
         } else {
             yellowButton(b, X + 30, H2 - 64, RW - 60, 42, 'Új játék', 19, function () {
                 getURL(hf.mode == 'robots' ? '?gamemode=1' : '?gamemode=0', '_self');
