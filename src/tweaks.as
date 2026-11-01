@@ -1126,6 +1126,38 @@
         }
     }
 
+    // Ha foglaláskor (a vár helye, a tippkérdés utáni szabad terület) csak egy terület választható, a
+    // játék kattint helyetted; támadáskor nem. A területgombokat csak a soron lévő saját játékosnak
+    // mutatja a játék (itt is, src/mp.as: StartSelectArea). A kattintás egy kicsit később megy el
+    // (addig látszik a kijelölés, és a 8. fázis ekkor még nem állította be a következőt), és csak
+    // akkor, ha közben nem kattintottál, és a választás még ugyanaz.
+    game.hfOrigShowAreaButtons = game.ShowAreaButtons;
+    game.ShowAreaButtons = function (mask) {
+        game.hfOrigShowAreaButtons(mask);
+        var st = game.state;
+        var ph = game.phase;
+        if (st != 1 && st != 3) {
+            return;
+        }
+        var only = 0;
+        for (var i = 1; i <= gmap.areanum; i++) {
+            if (mask & (1 << (i - 1))) {
+                if (only != 0) {
+                    return;
+                }
+                only = i;
+            }
+        }
+        if (only == 0) {
+            return;
+        }
+        hf.later(hf.ms(800), function () {
+            if (game.state == st && game.phase == ph && game.selectablearea == mask) {
+                game.btnAreaPressed(only);
+            }
+        });
+    };
+
     // nincs "Lejárt az időd. A rendes játékban..." próbajáték-tipp
     game.OnClockTimeoutEnd = function () {
     };
